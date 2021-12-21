@@ -1,0 +1,12 @@
+FROM node:16
+
+RUN mkdir -p /project
+COPY webapp/reactjs /project
+WORKDIR /project
+RUN npm install
+
+WORKDIR /project/client
+RUN npm install
+
+WORKDIR /project
+

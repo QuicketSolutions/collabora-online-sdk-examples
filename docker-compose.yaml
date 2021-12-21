@@ -1,0 +1,61 @@
+version: "3.7"
+networks:
+  coolws:
+    attachable: true
+    driver: bridge
+      
+services:
+  code:
+    image: collabora/code
+    environment:
+      domain: wopi.coolws
+      username: admin
+      password: coolws
+      extra_params: --o:ssl.enable=false -o:storage.filesystem[@allow]=true
+    networks:
+      coolws:
+        aliases:
+          - code
+          - code.coolws
+    ports:
+      - mode: host
+        protocol: tcp
+        target: 9980
+        published: 9980
+  wopi:
+    image: coolws-react
+    build:
+      context: .
+      dockerfile: Dockerfile.reactjs
+    command: [ 'npm', 'start' ]
+    ports:
+      - mode: host
+        protocol: tcp
+        target: 3001
+        published: 3001
+    networks:
+      coolws:
+        aliases:
+          - wopi
+          - wopi.coolws 
+  www:
+    image: coolws-react
+    build:
+      context: .
+      dockerfile: Dockerfile.reactjs
+    environment:
+      HOST: www.coolws
+    command:
+      - /bin/bash
+      - -c
+      - "cd client && npm start"
+    ports:
+      - mode: host
+        protocol: tcp
+        target: 3000
+        published: 3000
+    networks:
+      coolws:
+        aliases:
+          - www
+          - www.coolws
